@@ -9,6 +9,8 @@
 #error OpenVR is only supported on desktop.
 #endif
 
+//#region OpenVR Function Prototypes
+// OpenVR requires us to declare these functions ourselves.
 extern intptr_t VR_InitInternal(EVRInitError *peError, EVRApplicationType eType);
 
 extern void VR_ShutdownInternal();
@@ -22,6 +24,7 @@ extern bool VR_IsRuntimeInstalled();
 extern const char *VR_GetVRInitErrorAsSymbol(EVRInitError error);
 
 extern const char *VR_GetVRInitErrorAsEnglishDescription(EVRInitError error);
+//#endregion
 
 // OpenVrCoreData contains our OpenVR-related global state.
 typedef struct OpenVrCoreData {
@@ -42,6 +45,7 @@ typedef struct OpenVrCoreData {
     Matrix matrixInvHmdTf; // Inverse of transform of HMD
 } OpenVrCoreData;
 
+// Like Raylib, use a struct to organize our global state
 static OpenVrCoreData VRCORE = {0};
 
 // Converts a 4x4 OpenVR matrix (HmdMatrix44_t) to a 4x4 Raylib matrix (Matrix)
