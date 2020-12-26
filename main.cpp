@@ -1,18 +1,12 @@
-#include <openvr.h>
-
 #include <raylib.h>
 #include <rlgl.h>
 #include <raymath.h>
-#include "rlvr.h"
-
-extern RenderTexture RENDER_TEX_L;
-extern RenderTexture RENDER_TEX_R;
+#include "rayvr.h"
 
 void DrawScene() {
-    auto poseTf = rlvr::GetPoseMatrix();
+    auto poseTf = GetPoseMatrix();
 
     DrawGrid(10, 1.0f);
-
     DrawCube({3, 0, 0}, 0.5f, 0.5f, 0.5f, RED);
     DrawCubeWires({-3, 0, 0}, 0.5f, 0.5f, 0.5f, RED);
     DrawCube({0, 0, 3}, 0.5f, 0.5f, 0.5f, BLUE);
@@ -24,12 +18,11 @@ void DrawScene() {
     DrawCubeWires(Vector3Zero(), 0.5f, 0.5f, 0.5f, RED);
     DrawGizmo(Vector3Zero());
     rlPopMatrix();
-
 }
 
 int main() {
     InitWindow(800, 600, "rlvr");
-    rlvr::InitOpenVr();
+    InitOpenVr();
 
     Camera3D camera = {0};
     camera.position = {10.0f, 10.0f, 10.0f}; // Camera position
@@ -43,37 +36,34 @@ int main() {
     SetTargetFPS(120);
 
     while (!WindowShouldClose()) {
-        rlvr::UpdateOpenVr();
+        UpdateOpenVr();
         UpdateCamera(&camera);
 
         BeginDrawing();
 
-        rlvr::BeginOpenVrDrawing();
+        BeginOpenVrDrawing();
         {
-            rlvr::BeginEyeDrawing(vr::Eye_Left);
+            BeginEyeDrawing(EVREye_Eye_Left);
             ClearBackground(BLACK);
             DrawScene();
-            rlvr::EndEyeDrawing();
+            EndEyeDrawing();
 
-            rlvr::BeginEyeDrawing(vr::Eye_Right);
+            BeginEyeDrawing(EVREye_Eye_Right);
             ClearBackground(BLACK);
             DrawScene();
-            rlvr::EndEyeDrawing();
+            EndEyeDrawing();
         }
-        rlvr::EndOpenVrDrawing();
+        EndOpenVrDrawing();
 
         ClearBackground(RAYWHITE);
         BeginMode3D(camera);
         DrawScene();
         EndMode3D();
 
-        DrawTextureEx(RENDER_TEX_L.texture, Vector2Zero(), 0.0f, 0.25f, WHITE);
-        DrawTextureEx(RENDER_TEX_R.texture, {0.25f * RENDER_TEX_L.texture.width + 2, 0}, 0.0f, 0.25f, WHITE);
-
         EndDrawing();
     }
 
-    rlvr::ShutdownOpenVr();
+    ShutdownOpenVr();
     CloseWindow();
 
     return 0;

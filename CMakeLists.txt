@@ -37,9 +37,9 @@ if (NOT raylib_FOUND) # If there's none, fetch and build raylib
 endif ()
 link_libraries(raylib)
 
-find_path(OPENVR_INCLUDE_DIR openvr.h)
+find_path(OPENVR_INCLUDE_DIR openvr_capi.h)
 find_library(OPENVR_LIB openvr_api)
 include_directories(${OPENVR_INCLUDE_DIR})
 link_libraries(${OPENVR_LIB})
 
-add_executable(main main.cpp rlvr.h rlvr.cpp)
+add_executable(main main.cpp rayvr.h rayvr.c)
