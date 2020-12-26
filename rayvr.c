@@ -139,6 +139,10 @@ void UpdateOpenVr() {
     }
 }
 
+// TODO: The ultimate goal is to have an API similar to Raylib's built-in VR simulator (BeginVrDrawing then
+//  EndVrDrawing). Right now drawing is done per-viewpoint, which works but results in 3x the OpenGL calls (left eye,
+//  right eye, camera)! Ideally we would want something like DrawRenderBatch (rlgl.h) but suited to render using the
+//  transforms OpenVR gives us.
 void BeginOpenVrDrawing() {
 
 }
@@ -147,7 +151,7 @@ void BeginEyeDrawing(Hmd_Eye eye) {
     BeginTextureMode(eye == EVREye_Eye_Left ? VRCORE.renderTextureLeft : VRCORE.renderTextureRight);
     rlglDraw();
 
-    // Sequence: [ Model * View ] * Projection
+    // Sequence: [ Model * View ] * [ Projection ]
     //           ^         ^        ^- RL_PROJECTION
     //           |         `- HMD^-1 * Eye^-1
     //           `- RL_MODELVIEW
