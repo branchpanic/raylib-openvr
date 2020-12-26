@@ -28,8 +28,6 @@ Matrix GetPoseMatrix();
 Matrix GetEyeMatrix(Hmd_Eye eye);
 
 // OpenVR Utility
-struct IVRSystem *GetHmd();
-
 Matrix OpenVr34ToRaylib44Matrix(HmdMatrix34_t mat);
 
 Matrix OpenVr44ToRaylib44Matrix(HmdMatrix44_t mat);
