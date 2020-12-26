@@ -4,20 +4,16 @@
 #include "rayvr.h"
 
 void DrawScene() {
-    auto poseTf = GetHmdTransform();
-
-    DrawGrid(10, 1.0f);
-    DrawCube({3, 0, 0}, 0.5f, 0.5f, 0.5f, RED);
-    DrawCubeWires({-3, 0, 0}, 0.5f, 0.5f, 0.5f, RED);
-    DrawCube({0, 0, 3}, 0.5f, 0.5f, 0.5f, BLUE);
-    DrawCubeWires({0, 0, -3}, 0.5f, 0.5f, 0.5f, BLUE);
-
-    rlPushMatrix();
-    rlLoadIdentity();
-    rlMultMatrixf(MatrixToFloat(poseTf));
-    DrawCubeWires(Vector3Zero(), 0.5f, 0.5f, 0.5f, RED);
-    DrawGizmo(Vector3Zero());
-    rlPopMatrix();
+    auto devices = GetTrackedDevices();
+    for (int i = 0; i < 64; i++) {
+        if (devices[i].bPoseIsValid && GetHmd()->GetTrackedDeviceClass(i) == ETrackedDeviceClass_TrackedDeviceClass_Controller) {
+            rlPushMatrix();
+            rlLoadIdentity();
+            rlMultMatrixf(MatrixToFloat(OpenVr34ToRaylib44Matrix(devices[i].mDeviceToAbsoluteTracking)));
+            DrawCube(Vector3Zero(), 0.08f, 0.08f, 0.08f, GREEN);
+            rlPopMatrix();
+        }
+    }
 }
 
 int main() {
@@ -31,13 +27,18 @@ int main() {
     camera.fovy = 45.0f;                     // Camera field-of-view Y
     camera.type = CAMERA_PERSPECTIVE;
 
-    SetCameraMode(camera, CAMERA_FREE);
+    SetCameraMode(camera, CAMERA_CUSTOM);
 
     SetTargetFPS(120);
 
     while (!WindowShouldClose()) {
         UpdateOpenVr();
         UpdateCamera(&camera);
+
+        auto hmdThisFrame = GetHmdTransform();
+        camera.position = Vector3Transform(Vector3Zero(), hmdThisFrame);
+        camera.up = Vector3Transform({0, 1, 0}, hmdThisFrame);
+        camera.target = Vector3Transform({0, 0, -1}, hmdThisFrame);
 
         BeginDrawing();
 

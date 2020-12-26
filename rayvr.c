@@ -48,6 +48,14 @@ typedef struct OpenVrCoreData {
 // Like Raylib, use a struct to organize our global state
 static OpenVrCoreData VRCORE = {0};
 
+struct VR_IVRSystem_FnTable *GetHmd() {
+    return VRCORE.hmd;
+}
+
+TrackedDevicePose_t* GetTrackedDevices() {
+    return VRCORE.trackedPoses;
+}
+
 // Converts a 4x4 OpenVR matrix (HmdMatrix44_t) to a 4x4 Raylib matrix (Matrix)
 inline Matrix OpenVr44ToRaylib44Matrix(HmdMatrix44_t mat) {
     return (Matrix) {
@@ -166,10 +174,10 @@ void BeginEyeDrawing(Hmd_Eye eye) {
     rlLoadIdentity();
 
     // HACK: The "HMD" position is actually the position of the left eye. We avoid multiplying in the eye transform when
-    // rendering to the left eye, because doing so would double the distance between eyes creating a very uncomfortable
-    // experience. It seems like there should be a nice linear-algebraic calculation for this, but I can't seem to
-    // figure it out. See: https://github.com/ValveSoftware/openvr/issues/727
-    float* mf;
+    //  rendering to the left eye, because doing so would double the distance between eyes creating a very uncomfortable
+    //  experience. It seems like there should be a nice linear-algebraic calculation for this, but I can't seem to
+    //  figure it out. See: https://github.com/ValveSoftware/openvr/issues/727
+    float *mf;
     if (eye == EVREye_Eye_Left) {
         mf = MatrixToFloat(VRCORE.matrixInvHmdTf);
     } else {

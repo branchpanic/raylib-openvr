@@ -78,3 +78,6 @@ CMakeUserPresets.json
 cmake-*/
 .idea/
 .vscode/
+
+# Temporary for non-fork branch
+raylib/
