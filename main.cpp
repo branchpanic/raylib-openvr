@@ -4,7 +4,7 @@
 #include "rayvr.h"
 
 void DrawScene() {
-    auto poseTf = GetPoseMatrix();
+    auto poseTf = GetHmdTransform();
 
     DrawGrid(10, 1.0f);
     DrawCube({3, 0, 0}, 0.5f, 0.5f, 0.5f, RED);

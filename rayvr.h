@@ -8,29 +8,25 @@
 extern "C" {
 #endif
 
-void InitOpenVr();
+// OpenVR Lifecycle
+void InitOpenVr();                          // Initialize an OpenVR scene.
+void UpdateOpenVr();                        // Update OpenVR. Should be called every frame to get tracking data.
+void ShutdownOpenVr();                      // Shut down the current OpenVR scene.
 
-void UpdateOpenVr();
+void BeginOpenVrDrawing();                  // Start drawing for OpenVR.
+void EndOpenVrDrawing();                    // Finish drawing for OpenVR.
 
-void ShutdownOpenVr();
-
-void BeginOpenVrDrawing();
-
-void EndOpenVrDrawing();
-
-void BeginEyeDrawing(Hmd_Eye eye);
-
-void EndEyeDrawing();
+void BeginEyeDrawing(Hmd_Eye eye);          // Start drawing directly to the specified eye.
+void EndEyeDrawing();                       // Finish drawing to the current eye.
 
 // Graphics
-Matrix GetPoseMatrix();
 
-Matrix GetEyeMatrix(Hmd_Eye eye);
+Matrix GetHmdTransform();                     // Gets the transformation matrix of the HMD
+Matrix GetHmdToEyeTransform(Hmd_Eye eye);           // Gets the transformation matrix from the HMD to an eye
 
 // OpenVR Utility
-Matrix OpenVr34ToRaylib44Matrix(HmdMatrix34_t mat);
-
-Matrix OpenVr44ToRaylib44Matrix(HmdMatrix44_t mat);
+Matrix OpenVr34ToRaylib44Matrix(HmdMatrix34_t mat);     // Convert from a 3x4 OpenVR matrix to a 4x4 Raylib matrix
+Matrix OpenVr44ToRaylib44Matrix(HmdMatrix44_t mat);     // Convert from a 4x4 OpenVR matrix to a 4x4 Raylib matrix
 
 #ifdef __cplusplus
 }

@@ -67,18 +67,33 @@ inline Matrix OpenVr34ToRaylib44Matrix(HmdMatrix34_t mat) {
 
 // Gets the projection matrix for a given eye.
 // See: https://github.com/ValveSoftware/openvr/wiki/IVRSystem::GetProjectionMatrix
-inline Matrix GetProjectionMatrix(Hmd_Eye eye) {
+Matrix GetProjectionMatrix(Hmd_Eye eye) {
     return OpenVr44ToRaylib44Matrix(VRCORE.hmd->GetProjectionMatrix(eye, VRCORE.clipZNear, VRCORE.clipZFar));
 }
 
 // Gets the eye-to-head transformation matrix for a given eye.
 // See: https://github.com/ValveSoftware/openvr/wiki/IVRSystem::GetEyeToHeadTransform
-Matrix GetEyeMatrix(Hmd_Eye eye) {
+Matrix GetHmdToEyeTransform(Hmd_Eye eye) {
     return OpenVr34ToRaylib44Matrix(VRCORE.hmd->GetEyeToHeadTransform(eye));
 }
 
-Matrix GetPoseMatrix() {
+Matrix GetHmdTransform() {
     return VRCORE.matrixHmdTf;
+}
+
+static inline intptr_t GetOpenVrTable(const char *name) {
+    static char tableName[128];
+    static EVRInitError err;
+
+    sprintf(tableName, "FnTable:%s", name);
+    intptr_t result = VR_GetGenericInterface(tableName, &err);
+
+    if (err != EVRInitError_VRInitError_None) {
+        TraceLog(LOG_FATAL, "Failed to get function table %s from OpenVR (%s): %s", name,
+                 VR_GetVRInitErrorAsSymbol(err), VR_GetVRInitErrorAsEnglishDescription(err));
+    }
+
+    return result;
 }
 
 void InitOpenVr() {
@@ -99,29 +114,15 @@ void InitOpenVr() {
         TraceLog(LOG_FATAL, "OPENVR: Failed to initialize runtime: %s", VR_GetVRInitErrorAsEnglishDescription(err));
     }
 
-    char tableName[128];
-
-    sprintf(tableName, "FnTable:%s", IVRSystem_Version);
-    VRCORE.hmd = (struct VR_IVRSystem_FnTable *) VR_GetGenericInterface(tableName, &err);
-    if (err != EVRInitError_VRInitError_None) {
-        TraceLog(LOG_FATAL, "Failed to get table %s (%s): %s", IVRSystem_Version, VR_GetVRInitErrorAsSymbol(err),
-                 VR_GetVRInitErrorAsEnglishDescription(err));
-    }
+    VRCORE.hmd = (struct VR_IVRSystem_FnTable *) GetOpenVrTable(IVRSystem_Version);
+    VRCORE.compositor = (struct VR_IVRCompositor_FnTable *) GetOpenVrTable(IVRCompositor_Version);
 
     VRCORE.hmd->GetRecommendedRenderTargetSize(&VRCORE.renderTargetWidth, &VRCORE.renderTargetHeight);
-
     VRCORE.renderTextureLeft = LoadRenderTexture(VRCORE.renderTargetWidth, VRCORE.renderTargetHeight);
     VRCORE.renderTextureRight = LoadRenderTexture(VRCORE.renderTargetWidth, VRCORE.renderTargetHeight);
 
     VRCORE.clipZNear = 0.1f;
     VRCORE.clipZFar = 30.0f;
-
-    sprintf(tableName, "FnTable:%s", IVRCompositor_Version);
-    VRCORE.compositor = (struct VR_IVRCompositor_FnTable *) VR_GetGenericInterface(tableName, &err);
-    if (err != EVRInitError_VRInitError_None) {
-        TraceLog(LOG_FATAL, "Failed to get table %s (%s): %s", IVRCompositor_Version, VR_GetVRInitErrorAsSymbol(err),
-                 VR_GetVRInitErrorAsEnglishDescription(err));
-    }
 }
 
 void UpdateOpenVr() {
