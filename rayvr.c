@@ -143,8 +143,10 @@ void BeginEyeDrawing(Hmd_Eye eye) {
     BeginTextureMode(eye == EVREye_Eye_Left ? VRCORE.renderTextureLeft : VRCORE.renderTextureRight);
     rlglDraw();
 
-    // Sequence: [ Model * (View * Eye^-1) ] * [ Projection ]
-    //           ^- RL_MODELVIEW               ^- RL_PROJECTION
+    // Sequence: [ Model * View ] * Projection
+    //           ^         ^        ^- RL_PROJECTION
+    //           |         `- HMD^-1 * Eye^-1
+    //           `- RL_MODELVIEW
 
     rlMatrixMode(RL_PROJECTION);
     rlPushMatrix();
@@ -155,8 +157,18 @@ void BeginEyeDrawing(Hmd_Eye eye) {
     rlMatrixMode(RL_MODELVIEW);
     rlLoadIdentity();
 
-    // TODO: Something is wrong. Eye images diverge vertically when looking along X-axis, but are otherwise fine.
-    rlMultMatrixf(MatrixToFloat(MatrixMultiply(MatrixInvert(GetEyeMatrix(eye)), VRCORE.matrixInvHmdTf)));
+    // HACK: The "HMD" position is actually the position of the left eye. We avoid multiplying in the eye transform when
+    // rendering to the left eye, because doing so would double the distance between eyes creating a very uncomfortable
+    // experience. It seems like there should be a nice linear-algebraic calculation for this, but I can't seem to
+    // figure it out. See: https://github.com/ValveSoftware/openvr/issues/727
+    float* mf;
+    if (eye == EVREye_Eye_Left) {
+        mf = MatrixToFloat(VRCORE.matrixInvHmdTf);
+    } else {
+        mf = MatrixToFloat(MatrixMultiply(MatrixInvert(GetHmdToEyeTransform(eye)), VRCORE.matrixInvHmdTf));
+    }
+
+    rlMultMatrixf(mf);
 
     rlEnableDepthTest();
 }
