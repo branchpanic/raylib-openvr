@@ -28,7 +28,7 @@ int main() {
     camera.position = {10.0f, 10.0f, 10.0f}; // Camera position
     camera.target = {0.0f, 0.0f, 0.0f};      // Camera looking at point
     camera.up = {0.0f, 1.0f, 0.0f};          // Camera up vector (rotation towards target)
-    camera.fovy = 45.0f;                                // Camera field-of-view Y
+    camera.fovy = 45.0f;                     // Camera field-of-view Y
     camera.type = CAMERA_PERSPECTIVE;
 
     SetCameraMode(camera, CAMERA_FREE);
@@ -41,6 +41,7 @@ int main() {
 
         BeginDrawing();
 
+        // TODO: This approach is temporary
         BeginOpenVrDrawing();
         {
             BeginEyeDrawing(EVREye_Eye_Left);

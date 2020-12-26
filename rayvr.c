@@ -32,14 +32,14 @@ typedef struct OpenVrCoreData {
     TrackedDevicePose_t trackedPoses[64]; // TODO: k_unMaxTrackedDeviceCount
 
     // Stereo rendering
-    uint32_t renderTargetWidth, renderTargetHeight;         // Width & height of eye render target (for convenience)
-    RenderTexture renderTextureLeft, renderTextureRight;    // Render textures for left and right eye, later sent to OpenVR
+    uint32_t renderTargetWidth, renderTargetHeight;      // Width & height of eye render target (for convenience)
+    RenderTexture renderTextureLeft, renderTextureRight; // Render textures for left and right eye, later sent to OpenVR
 
-    float clipZNear;     // Clipping plane, near
-    float clipZFar;     // Clipping plane, far
+    float clipZNear; // Clipping plane, near
+    float clipZFar;  // Clipping plane, far
 
-    Matrix matrixHmdTf;                         // Transform of HMD
-    Matrix matrixInvHmdTf;                      // Inverse of transform of HMD
+    Matrix matrixHmdTf;    // Transform of HMD
+    Matrix matrixInvHmdTf; // Inverse of transform of HMD
 } OpenVrCoreData;
 
 static OpenVrCoreData VRCORE = {0};
@@ -153,6 +153,8 @@ void BeginEyeDrawing(Hmd_Eye eye) {
 
     rlMatrixMode(RL_MODELVIEW);
     rlLoadIdentity();
+
+    // TODO: Something is wrong. Eye images diverge vertically when looking along X-axis, but are otherwise fine.
     rlMultMatrixf(MatrixToFloat(MatrixMultiply(MatrixInvert(GetEyeMatrix(eye)), VRCORE.matrixInvHmdTf)));
 
     rlEnableDepthTest();
