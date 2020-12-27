@@ -161,7 +161,7 @@ void BeginEyeDrawing(Hmd_Eye eye) {
 
     // Sequence: [ Model * View ] * [ Projection ]
     //           ^         ^        ^- RL_PROJECTION
-    //           |         `- HMD^-1 * Eye^-1
+    //           |         `- (HMD * Eye)^-1
     //           `- RL_MODELVIEW
 
     rlMatrixMode(RL_PROJECTION);
@@ -181,7 +181,7 @@ void BeginEyeDrawing(Hmd_Eye eye) {
     if (eye == EVREye_Eye_Left) {
         mf = MatrixToFloat(VRCORE.matrixInvHmdTf);
     } else {
-        mf = MatrixToFloat(MatrixMultiply(MatrixInvert(GetHmdToEyeTransform(eye)), VRCORE.matrixInvHmdTf));
+        mf = MatrixToFloat(MatrixInvert(MatrixMultiply(GetHmdToEyeTransform(eye), VRCORE.matrixHmdTf)));
     }
 
     rlMultMatrixf(mf);
