@@ -1,45 +1,53 @@
 cmake_minimum_required(VERSION 3.16)
 
-if (DEFINED ENV{VCPKG_ROOT} AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
-    set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
-endif ()
+project(
+	raylib-openvr
+    LANGUAGES
+        C
+	VERSION
+        0.0.0
+	DESCRIPTION
+        "OpenVR companion library for raylib"
+)
 
-project(raylib_openvr)
-
-set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_STANDARD 11)
 
-# Vcpkg seems to have the occasional problem with raylib, so we have included its auto-fetch script. If vcpkg's
-# distribution of raylib does not work, uninstall it to fetch the latest release.
-# https://github.com/raysan5/raylib/blob/e25e380e80a117f2404d65b37700fb620dc1f990/projects/CMake/CMakeLists.txt
-find_package(raylib 3.0 QUIET)
-
-# This part downloads raylib and builds it if it's not installed on your system
-if (NOT raylib_FOUND) # If there's none, fetch and build raylib
-    include(FetchContent)
-
-    FetchContent_Declare(
-            raylib
-            URL https://github.com/raysan5/raylib/archive/master.tar.gz
-    )
-
-    FetchContent_GetProperties(raylib)
-    if (NOT raylib_POPULATED) # Have we downloaded raylib yet?
-        set(FETCHCONTENT_QUIET NO)
-        FetchContent_Populate(raylib)
-
-        set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE) # don't build the supplied examples
-
-        # build raylib
-        add_subdirectory(${raylib_SOURCE_DIR} ${raylib_BINARY_DIR})
-
-    endif ()
-endif ()
+# https://github.com/raysan5/raylib/blob/551597d5793532b19ed71808803a0d6a6e1178b0/projects/CMake/CMakeLists.txt#L25
+set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+add_subdirectory("third_party/raylib")
 link_libraries(raylib)
 
-find_path(OPENVR_INCLUDE_DIR openvr_capi.h)
-find_library(OPENVR_LIB openvr_api)
-include_directories(${OPENVR_INCLUDE_DIR})
-link_libraries(${OPENVR_LIB})
+if(WIN32)
+    # https://github.com/lebek/openvr-input-recorder/blob/15b906bb84efe9df3c13cbb805270ca34775b464/CMakeLists.txt#L42
+    find_library(OPENVR_LIBRARIES
+      NAMES
+        openvr_api
+      PATHS
+        ${CMAKE_CURRENT_SOURCE_DIR}/third_party/openvr/bin
+        ${CMAKE_CURRENT_SOURCE_DIR}/third_party/openvr/lib
+      PATH_SUFFIXES
+        win64
+      NO_DEFAULT_PATH
+      NO_CMAKE_FIND_ROOT_PATH
+    )
+    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/third_party/openvr/headers)
+    link_libraries(${OPENVR_LIBRARIES})
+else()
+    message(FATAL_ERROR "Non-win32 OpenVR dependency not yet implemented")
+endif()
 
-add_executable(main main.cpp rayvr.h rayvr.c)
+add_library(raylib-openvr rayvr.h rayvr.c)
+
+if(WIN32)
+    # Copy openvr_api.dll from OpenVR distribution to build directory
+    # Also adapted from openvr-input-recorder
+    add_custom_command(
+        TARGET
+            raylib-openvr
+        POST_BUILD 
+        COMMAND
+            ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_CURRENT_SOURCE_DIR}/third_party/openvr/bin/win64/openvr_api.dll"              
+            $<TARGET_FILE_DIR:raylib-openvr>
+    )
+endif()

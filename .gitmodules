@@ -1,0 +1,6 @@
+[submodule "openvr"]
+	path = third_party/openvr
+	url = https://github.com/ValveSoftware/openvr.git
+[submodule "raylib"]
+	path = third_party/raylib
+	url = https://github.com/dhsavell/raylib.git
