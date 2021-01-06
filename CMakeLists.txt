@@ -20,15 +20,15 @@ link_libraries(raylib)
 if(WIN32)
     # https://github.com/lebek/openvr-input-recorder/blob/15b906bb84efe9df3c13cbb805270ca34775b464/CMakeLists.txt#L42
     find_library(OPENVR_LIBRARIES
-      NAMES
-        openvr_api
-      PATHS
-        ${CMAKE_CURRENT_SOURCE_DIR}/third_party/openvr/bin
-        ${CMAKE_CURRENT_SOURCE_DIR}/third_party/openvr/lib
-      PATH_SUFFIXES
-        win64
-      NO_DEFAULT_PATH
-      NO_CMAKE_FIND_ROOT_PATH
+        NAMES
+            openvr_api
+        PATHS
+            ${CMAKE_CURRENT_SOURCE_DIR}/third_party/openvr/bin
+            ${CMAKE_CURRENT_SOURCE_DIR}/third_party/openvr/lib
+        PATH_SUFFIXES
+            win64
+        NO_DEFAULT_PATH
+        NO_CMAKE_FIND_ROOT_PATH
     )
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/third_party/openvr/headers)
     link_libraries(${OPENVR_LIBRARIES})
