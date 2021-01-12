@@ -73,15 +73,18 @@ finalized with EndMode3D().
 ```
 
 This example draws gizmos at the left and right controller positions. It uses RLGL functions to
-correctly position and orient them.
+correctly (? #10) position and orient them.
 ```c
                     rlPushMatrix();
-                    rlScalef(0.25f, 0.25f, 0.25f);
-                    rlPushMatrix();
                     rlMultMatrixf(MatrixToFloat(rig.controllers[0].transform));
+                    rlScalef(0.25f, 0.25f, 0.25f);
+                    DrawCube(Vector3Zero(), 0.25f, 0.25f, 0.25f, RED);
                     DrawGizmo(Vector3Zero());
                     rlPopMatrix();
+                    rlPushMatrix();
                     rlMultMatrixf(MatrixToFloat(rig.controllers[1].transform));
+                    rlScalef(0.25f, 0.25f, 0.25f);
+                    DrawCube(Vector3Zero(), 0.25f, 0.25f, 0.25f, RED);
                     DrawGizmo(Vector3Zero());
                     rlPopMatrix();
                 EndMode3D();
